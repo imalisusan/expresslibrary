@@ -13,7 +13,7 @@ exports.author_list = function(req, res, next) {
     .exec(function (err, list_authors) {
       if (err) { return next(err); }
       //Successful, so render
-      res.render('author_list', { title: 'Author List', author_list: list_authors });
+      res.render('authors/author_list', { title: 'Author List', author_list: list_authors });
     });
 
 };
@@ -39,7 +39,7 @@ exports.author_detail = function(req, res, next) {
             return next(err);
         }
         // Successful, so render.
-        res.render('author_detail', { title: 'Author Detail', author: results.author, author_books: results.authors_books } );
+        res.render('authors/author_detail', { title: 'Author Detail', author: results.author, author_books: results.authors_books } );
     });
 
 };
@@ -69,7 +69,7 @@ exports.author_create_post = [
 
         if (!errors.isEmpty()) {
             // There are errors. Render form again with sanitized values/errors messages.
-            res.render('author_form', { title: 'Create Author', author: req.body, errors: errors.array() });
+            res.render('authors/author_form', { title: 'Create Author', author: req.body, errors: errors.array() });
             return;
         }
         else {
@@ -108,7 +108,7 @@ exports.author_delete_get = function(req, res, next) {
             res.redirect('/catalog/authors');
         }
         // Successful, so render.
-        res.render('author_delete', { title: 'Delete Author', author: results.author, author_books: results.authors_books } );
+        res.render('authors/author_delete', { title: 'Delete Author', author: results.author, author_books: results.authors_books } );
     });
 
 };
@@ -128,7 +128,7 @@ exports.author_delete_post = function(req, res, next) {
         // Success
         if (results.authors_books.length > 0) {
             // Author has books. Render in same way as for GET route.
-            res.render('author_delete', { title: 'Delete Author', author: results.author, author_books: results.authors_books } );
+            res.render('authors/author_delete', { title: 'Delete Author', author: results.author, author_books: results.authors_books } );
             return;
         }
         else {

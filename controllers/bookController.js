@@ -39,7 +39,7 @@ exports.book_list = function(req, res, next) {
     .exec(function (err, list_books) {
       if (err) { return next(err); }
       //Successful, so render
-      res.render('book_list', { title: 'Book List', book_list: list_books });
+      res.render('books/book_list', { title: 'Book List', book_list: list_books });
     });
 
 };
@@ -69,7 +69,7 @@ exports.book_detail = function(req, res, next) {
             return next(err);
         }
         // Successful, so render.
-        res.render('book_detail', { title: results.book.title, book: results.book, book_instances: results.book_instance } );
+        res.render('books/book_detail', { title: results.book.title, book: results.book, book_instances: results.book_instance } );
     });
 
 };
@@ -87,7 +87,7 @@ exports.book_create_get = function(req, res, next) {
         },
     }, function(err, results) {
         if (err) { return next(err); }
-        res.render('book_form', { title: 'Create Book', authors: results.authors, genres: results.genres });
+        res.render('books/book_form', { title: 'Create Book', authors: results.authors, genres: results.genres });
     });
 
 };
@@ -147,7 +147,7 @@ exports.book_create_post = [
                         results.genres[i].checked='true';
                     }
                 }
-                res.render('book_form', { title: 'Create Book',authors:results.authors, genres:results.genres, book: book, errors: errors.array() });
+                res.render('books/book_form', { title: 'Create Book',authors:results.authors, genres:results.genres, book: book, errors: errors.array() });
             });
             return;
         }
@@ -164,8 +164,24 @@ exports.book_create_post = [
 
 
 // Display book delete form on GET.
-exports.book_delete_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: Book delete GET');
+exports.book_delete_get = function(req, res, next) {
+
+    async.parallel({
+        book: function(callback) {
+            Book.findById(req.params.id).exec(callback)
+        },
+        book_instances: function(callback) {
+            BookInstance.find({ 'book': req.params.id }).exec(callback)
+        },
+    }, function(err, results) {
+        if (err) { return next(err); }
+        if (results.author==null) { // No results.
+            res.redirect('/catalog/books');
+        }
+        // Successful, so render.
+        res.render('books/book_delete', { title: 'Delete Book', book: results.book, book_instances: results.book_instances } );
+    });
+
 };
 
 // Handle book delete on POST.
@@ -203,7 +219,7 @@ exports.book_update_get = function(req, res, next) {
                     }
                 }
             }
-            res.render('book_form', { title: 'Update Book', authors: results.authors, genres: results.genres, book: results.book });
+            res.render('books/book_form', { title: 'Update Book', authors: results.authors, genres: results.genres, book: results.book });
         });
 
 };
@@ -266,7 +282,7 @@ exports.book_update_post = [
                         results.genres[i].checked='true';
                     }
                 }
-                res.render('book_form', { title: 'Update Book',authors: results.authors, genres: results.genres, book: book, errors: errors.array() });
+                res.render('books/book_form', { title: 'Update Book',authors: results.authors, genres: results.genres, book: book, errors: errors.array() });
             });
             return;
         }
