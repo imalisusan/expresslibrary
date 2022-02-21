@@ -3,17 +3,10 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+
+require('dotenv').config();
 const { auth } = require('express-openid-connect');
-
-const config = {
-  authRequired: false,
-  auth0Logout: true,
-  baseURL: 'https://imali-local-library.herokuapp.com/',
-  clientID: '4Jw7Efi3irxJfqSnRrnjqc9NjRNXr5Lm',
-  issuerBaseURL: 'https://dev-xbjb1y5x.us.auth0.com',
-  secret: 'rRhSzY-U-ZMPHTP1aGSCkEXQXb8zDd6OxJXolAS1TNqRYTxwe4uJiB_Z2OmoiCd0'
-};
-
+const { requiresAuth } = require('express-openid-connect');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -37,6 +30,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(
+  auth({
+    authRequired: false,
+    auth0Logout: true,
+    baseURL: process.env.BASE_URL,
+    clientID: process.env.CLIENT_ID,
+    issuerBaseURL: process.env.ISSUER_BASE_URL,
+    secret: process.env.SECRET, 
+  })
+);
 
 
 app.use('/', indexRouter);
@@ -59,13 +62,13 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-
-// auth router attaches /login, /logout, and /callback routes to the baseURL
-app.use(auth(config));
-
 // req.isAuthenticated is provided from the auth router
 app.get('/', (req, res) => {
   res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out')
+});
+
+app.get('/profile', requiresAuth(), (req, res) => {
+  res.send(JSON.stringify(req.oidc.user));
 });
 
 module.exports = app;
