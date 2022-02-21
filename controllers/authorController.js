@@ -40,14 +40,14 @@ exports.author_detail = function(req, res, next) {
         }
         // Successful, so render.
         res.render('authors/author_detail', { title: 'Author Detail', author: results.author, author_books: results.authors_books } );
-    });
+    }); 
 
 };
 
 
 // Display Author create form on GET.
 exports.author_create_get = function(req, res, next) {
-    res.render('author_form', { title: 'Create Author'});
+    res.render('authors/author_form', { title: 'Create Author'});
 };
 
 // Handle Author create on POST.

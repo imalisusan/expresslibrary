@@ -3,6 +3,17 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const { auth } = require('express-openid-connect');
+
+const config = {
+  authRequired: false,
+  auth0Logout: true,
+  baseURL: 'https://imali-local-library.herokuapp.com/',
+  clientID: '4Jw7Efi3irxJfqSnRrnjqc9NjRNXr5Lm',
+  issuerBaseURL: 'https://dev-xbjb1y5x.us.auth0.com',
+  secret: 'rRhSzY-U-ZMPHTP1aGSCkEXQXb8zDd6OxJXolAS1TNqRYTxwe4uJiB_Z2OmoiCd0'
+};
+
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -27,6 +38,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/catalog', catalogRouter);  // Add catalog routes to middleware chain.
@@ -45,6 +57,15 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+
+
+// auth router attaches /login, /logout, and /callback routes to the baseURL
+app.use(auth(config));
+
+// req.isAuthenticated is provided from the auth router
+app.get('/', (req, res) => {
+  res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out')
 });
 
 module.exports = app;
